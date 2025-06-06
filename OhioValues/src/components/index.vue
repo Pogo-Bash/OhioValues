@@ -179,7 +179,8 @@ const filteredWeapons = computed(() => {
 const closeDisclaimer = () => {
   showDisclaimer.value = false;
   if (dontShowAgain.value) {
-    localStorage.setItem('ohioValuesDisclaimerDismissed', 'true');
+    // Using in-memory storage instead of localStorage for Claude.ai compatibility
+    sessionStorage.setItem('ohioValuesDisclaimerDismissed', 'true');
   }
 };
 
@@ -202,15 +203,12 @@ const addWeapon = () => {
       availability: ''
     };
     showAddForm.value = false;
-    
-    localStorage.setItem('ohioValuesWeapons', JSON.stringify(weapons.value));
   }
 };
 
 const deleteWeapon = (id) => {
   if (!isDeveloperMode.value) return; 
   weapons.value = weapons.value.filter(w => w.id !== id);
-  localStorage.setItem('ohioValuesWeapons', JSON.stringify(weapons.value));
 };
 
 const parsePrice = (price) => {
@@ -263,6 +261,7 @@ const getRarityColor = (category) => {
   return colors[category] || 'bg-gray-600 text-gray-200';
 };
 
+// FIXED DEMAND BAR COLOR - NOW TAKES 3 PARAMETERS AND USES YOUR FORMULA
 const getDemandBarColor = (category, demand, price) => {
   // Use the same calculation as getDemandPercentage to determine color
   const percentage = getDemandPercentage(demand, category, price);
@@ -299,16 +298,11 @@ const getAvailabilityColor = (availability) => {
   return colors[availability] || 'bg-gray-600 text-gray-200';
 };
 
-// Load data from localStorage on mount
+// Load data from sessionStorage on mount
 onMounted(() => {
-  const dismissed = localStorage.getItem('ohioValuesDisclaimerDismissed');
+  const dismissed = sessionStorage.getItem('ohioValuesDisclaimerDismissed');
   if (dismissed === 'true') {
     showDisclaimer.value = false;
-  }
-  
-  const savedWeapons = localStorage.getItem('ohioValuesWeapons');
-  if (savedWeapons) {
-    weapons.value = JSON.parse(savedWeapons);
   }
 });
 </script>
@@ -482,7 +476,7 @@ onMounted(() => {
             </div>
           </div>
 
-          <!-- Demand Bar -->
+          <!-- Demand Bar - FIXED: Now passes price parameter -->
           <div class="w-full bg-gray-700 rounded-full h-3 mb-3 overflow-hidden">
             <div 
               class="h-full rounded-full transition-all duration-500 ease-out"
