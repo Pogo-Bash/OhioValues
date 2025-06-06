@@ -261,61 +261,63 @@ const getDemandPercentage = (demand, category, price) => {
   // Base demand percentage (0-100)
   const baseDemand = Math.min((demandNum / 10) * 100, 100);
   
-  // Rarity/Category multipliers based on average values and exclusivity
+  // More balanced category multipliers
   const categoryMultipliers = {
-    'Invisible': 2.5,      // Ultra rare, highest tier
-    'Obsidian': 2.2,       // Very rare
-    'Void': 2.0,           // High tier
-    'Cyberpunk': 1.9,      // Popular high tier
-    'Solid Gold': 1.8,     // Premium tier
-    'Frozen Diamond': 1.7, // Expensive but specific
-    'Tactical': 1.6,       // High value
-    'Amethyst': 1.5,       // Atomic tier
-    'Nature': 1.5,         // Atomic tier
-    'Water': 1.4,          // Atomic tier
-    'Flame': 1.3,          // Atomic tier
-    'Voidlaser': 1.8,      // High value laser
-    'Hyperlaser': 1.4,     // Mid laser tier
-    'Rainbowlaser': 1.5,   // Mid-high laser
-    'Elite': 1.3,          // Good tier
-    'Steampunk': 1.2,      // Decent tier
-    'Reaper': 1.1,         // Lower tier
-    'Crimson Blood': 1.2,  // Obtainable but decent
+    'Invisible': 1.8,      // Ultra rare, highest tier
+    'Obsidian': 1.6,       // Very rare
+    'Void': 1.5,           // High tier
+    'Cyberpunk': 1.4,      // Popular high tier
+    'Solid Gold': 1.3,     // Premium tier
+    'Frozen Diamond': 1.25, // Expensive but specific
+    'Tactical': 1.2,       // High value
+    'Amethyst': 1.15,      // Atomic tier
+    'Nature': 1.15,        // Atomic tier
+    'Water': 1.1,          // Atomic tier
+    'Flame': 1.05,         // Atomic tier
+    'Voidlaser': 1.3,      // High value laser
+    'Hyperlaser': 1.1,     // Mid laser tier
+    'Rainbowlaser': 1.15,  // Mid-high laser
+    'Elite': 1.1,          // Good tier
+    'Steampunk': 1.05,     // Decent tier
+    'Reaper': 1.0,         // Lower tier
+    'Crimson Blood': 1.05, // Obtainable but decent
     'Dark Matter': 1.0,    // Base obtainable
     'Anti Matter': 1.0,    // Base obtainable
-    'Void Reaper': 1.1,    // Slightly better obtainable
-    'Easter Egg': 0.8,     // Limited but lower value
+    'Void Reaper': 1.02,   // Slightly better obtainable
+    'Easter Egg': 0.9,     // Limited but lower value
     'WW2': 1.0,            // Event tier
-    'Gingerbread': 0.9,    // Seasonal
+    'Gingerbread': 0.95,   // Seasonal
     'Sakura': 1.0,         // Event tier
-    'Mystic': 1.1,         // Decent tier
-    'Biohazard': 1.1,      // Decent tier
-    'Pirate': 1.2,         // Good tier
-    'Future': 1.1,         // Decent tier
-    'Pixel': 1.1,          // Decent tier
+    'Mystic': 1.02,        // Decent tier
+    'Biohazard': 1.02,     // Decent tier
+    'Pirate': 1.05,        // Good tier
+    'Future': 1.02,        // Decent tier
+    'Pixel': 1.02,         // Decent tier
     'Rose': 1.0,           // Standard tier
-    'Lucky Clover': 1.2,   // Good tier
-    'Subzero': 1.1,        // Decent tier
-    'Frozen Gold': 1.3,    // Higher tier
-    'Tactical V3': 1.4,    // Upgraded tactical
+    'Lucky Clover': 1.05,  // Good tier
+    'Subzero': 1.02,       // Decent tier
+    'Frozen Gold': 1.1,    // Higher tier
+    'Tactical V3': 1.15,   // Upgraded tactical
   };
   
-  // Price-based bonus (higher price = higher bar even with same demand)
+  // More balanced price-based bonus
   let priceMultiplier = 1.0;
-  if (priceValue >= 10000000) priceMultiplier = 1.4;        // 10m+
-  else if (priceValue >= 5000000) priceMultiplier = 1.3;    // 5m+
-  else if (priceValue >= 1000000) priceMultiplier = 1.2;    // 1m+
-  else if (priceValue >= 500000) priceMultiplier = 1.1;     // 500k+
-  else if (priceValue >= 100000) priceMultiplier = 1.0;     // 100k+
-  else priceMultiplier = 0.9;                               // Under 100k
+  if (priceValue >= 15000000) priceMultiplier = 1.3;        // 15m+ (ultra rare)
+  else if (priceValue >= 10000000) priceMultiplier = 1.25;  // 10m+
+  else if (priceValue >= 5000000) priceMultiplier = 1.2;    // 5m+
+  else if (priceValue >= 2000000) priceMultiplier = 1.15;   // 2m+
+  else if (priceValue >= 1000000) priceMultiplier = 1.1;    // 1m+
+  else if (priceValue >= 500000) priceMultiplier = 1.05;    // 500k+
+  else if (priceValue >= 200000) priceMultiplier = 1.0;     // 200k+
+  else priceMultiplier = 0.95;                              // Under 200k
   
   const categoryMultiplier = categoryMultipliers[category] || 1.0;
   
   // Calculate final percentage with multipliers
   const finalPercentage = baseDemand * categoryMultiplier * priceMultiplier;
   
-  // Cap at 100% but allow the multipliers to show relative importance
-  return Math.min(finalPercentage, 100);
+  // More reasonable cap to prevent extreme bars
+  return Math.min(finalPercentage, 95);
 };
 
 const getRarityColor = (category) => {
@@ -572,8 +574,9 @@ onMounted(() => {
             ></div>
           </div>
 
-          <!-- Delete Button -->
+          <!-- Delete Button (only show in developer mode) -->
           <button 
+            v-if="isDeveloperMode"
             @click="deleteWeapon(weapon.id)" 
             class="w-full mt-2 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white px-3 py-2 rounded transition text-sm"
           >
