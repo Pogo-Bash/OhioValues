@@ -1,4 +1,11 @@
-<script setup>
+const getAvailabilityColor = (availability) => {
+  const colors = {
+    'Obtainable': 'bg-green-700 text-green-200',
+    'Unobtainable': 'bg-red-700 text-red-200',
+    'Limited Time': 'bg-yellow-700 text-yellow-200'
+  };
+  return colors[availability] || 'bg-gray-600 text-gray-200';
+};<script setup>
 import { ref, computed, onMounted } from 'vue';
 
 // Navigation
@@ -254,11 +261,68 @@ const parseDemand = (demand) => {
   return isNaN(num) ? 0 : num;
 };
 
-const getDemandPercentage = (demand) => {
-  const num = parseDemand(demand);
-  // Handle special cases like "+10/10" and ensure max is 100%
-  const percentage = Math.min((num / 10) * 100, 100);
-  return Math.max(percentage, 0); // Ensure no negative values
+const getDemandPercentage = (demand, category, price) => {
+  const demandNum = parseDemand(demand);
+  const priceValue = parsePrice(price);
+  
+  // Base demand percentage (0-100)
+  const baseDemand = Math.min((demandNum / 10) * 100, 100);
+  
+  // Rarity/Category multipliers based on average values and exclusivity
+  const categoryMultipliers = {
+    'Invisible': 2.5,      // Ultra rare, highest tier
+    'Obsidian': 2.2,       // Very rare
+    'Void': 2.0,           // High tier
+    'Cyberpunk': 1.9,      // Popular high tier
+    'Solid Gold': 1.8,     // Premium tier
+    'Frozen Diamond': 1.7, // Expensive but specific
+    'Tactical': 1.6,       // High value
+    'Amethyst': 1.5,       // Atomic tier
+    'Nature': 1.5,         // Atomic tier
+    'Water': 1.4,          // Atomic tier
+    'Flame': 1.3,          // Atomic tier
+    'Voidlaser': 1.8,      // High value laser
+    'Hyperlaser': 1.4,     // Mid laser tier
+    'Rainbowlaser': 1.5,   // Mid-high laser
+    'Elite': 1.3,          // Good tier
+    'Steampunk': 1.2,      // Decent tier
+    'Reaper': 1.1,         // Lower tier
+    'Crimson Blood': 1.2,  // Obtainable but decent
+    'Dark Matter': 1.0,    // Base obtainable
+    'Anti Matter': 1.0,    // Base obtainable
+    'Void Reaper': 1.1,    // Slightly better obtainable
+    'Easter Egg': 0.8,     // Limited but lower value
+    'WW2': 1.0,            // Event tier
+    'Gingerbread': 0.9,    // Seasonal
+    'Sakura': 1.0,         // Event tier
+    'Mystic': 1.1,         // Decent tier
+    'Biohazard': 1.1,      // Decent tier
+    'Pirate': 1.2,         // Good tier
+    'Future': 1.1,         // Decent tier
+    'Pixel': 1.1,          // Decent tier
+    'Rose': 1.0,           // Standard tier
+    'Lucky Clover': 1.2,   // Good tier
+    'Subzero': 1.1,        // Decent tier
+    'Frozen Gold': 1.3,    // Higher tier
+    'Tactical V3': 1.4,    // Upgraded tactical
+  };
+  
+  // Price-based bonus (higher price = higher bar even with same demand)
+  let priceMultiplier = 1.0;
+  if (priceValue >= 10000000) priceMultiplier = 1.4;        // 10m+
+  else if (priceValue >= 5000000) priceMultiplier = 1.3;    // 5m+
+  else if (priceValue >= 1000000) priceMultiplier = 1.2;    // 1m+
+  else if (priceValue >= 500000) priceMultiplier = 1.1;     // 500k+
+  else if (priceValue >= 100000) priceMultiplier = 1.0;     // 100k+
+  else priceMultiplier = 0.9;                               // Under 100k
+  
+  const categoryMultiplier = categoryMultipliers[category] || 1.0;
+  
+  // Calculate final percentage with multipliers
+  const finalPercentage = baseDemand * categoryMultiplier * priceMultiplier;
+  
+  // Cap at 100% but allow the multipliers to show relative importance
+  return Math.min(finalPercentage, 100);
 };
 
 const getRarityColor = (category) => {
@@ -276,13 +340,37 @@ const getRarityColor = (category) => {
   return colors[category] || 'bg-gray-600 text-gray-200';
 };
 
-const getAvailabilityColor = (availability) => {
-  const colors = {
-    'Obtainable': 'bg-green-700 text-green-200',
-    'Unobtainable': 'bg-red-700 text-red-200',
-    'Limited Time': 'bg-yellow-700 text-yellow-200'
-  };
-  return colors[availability] || 'bg-gray-600 text-gray-200';
+const getDemandBarColor = (category, demand) => {
+  const demandNum = parseDemand(demand);
+  
+  // Ultra-rare categories get special colors
+  const ultraRareCategories = ['Invisible', 'Obsidian', 'Void', 'Cyberpunk'];
+  const highTierCategories = ['Solid Gold', 'Frozen Diamond', 'Tactical', 'Amethyst', 'Nature', 'Water'];
+  const midTierCategories = ['Elite', 'Steampunk', 'Voidlaser', 'Hyperlaser', 'Tactical V3'];
+  
+  if (ultraRareCategories.includes(category)) {
+    if (demandNum >= 8) return 'bg-gradient-to-r from-purple-400 via-pink-400 to-red-400'; // Legendary
+    if (demandNum >= 6) return 'bg-gradient-to-r from-purple-500 to-pink-500'; // Epic
+    return 'bg-gradient-to-r from-purple-600 to-purple-400'; // Rare ultra
+  }
+  
+  if (highTierCategories.includes(category)) {
+    if (demandNum >= 8) return 'bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400'; // High demand
+    if (demandNum >= 6) return 'bg-gradient-to-r from-blue-500 to-purple-500'; // Good demand
+    return 'bg-gradient-to-r from-blue-600 to-blue-400'; // Standard high tier
+  }
+  
+  if (midTierCategories.includes(category)) {
+    if (demandNum >= 8) return 'bg-gradient-to-r from-green-400 to-blue-400'; // High mid-tier
+    if (demandNum >= 6) return 'bg-gradient-to-r from-green-500 to-blue-500'; // Good mid-tier
+    return 'bg-gradient-to-r from-green-600 to-green-400'; // Standard mid-tier
+  }
+  
+  // Standard/obtainable categories
+  if (demandNum >= 8) return 'bg-gradient-to-r from-yellow-400 to-green-400'; // High demand standard
+  if (demandNum >= 6) return 'bg-gradient-to-r from-yellow-500 to-green-500'; // Good demand
+  if (demandNum >= 4) return 'bg-gradient-to-r from-orange-500 to-yellow-500'; // Medium demand
+  return 'bg-gradient-to-r from-red-500 to-orange-500'; // Low demand
 };
 
 // Load data from localStorage on mount
@@ -473,10 +561,11 @@ onMounted(() => {
           <!-- Demand Bar -->
           <div class="w-full bg-gray-700 rounded-full h-3 mb-3 overflow-hidden">
             <div 
-              class="bg-gradient-to-r from-purple-500 to-pink-500 h-full rounded-full transition-all duration-500 ease-out"
+              class="h-full rounded-full transition-all duration-500 ease-out"
+              :class="getDemandBarColor(weapon.category, weapon.demand)"
               :style="{ 
-                width: getDemandPercentage(weapon.demand) + '%',
-                minWidth: getDemandPercentage(weapon.demand) > 0 ? '2px' : '0px'
+                width: getDemandPercentage(weapon.demand, weapon.category, weapon.price) + '%',
+                minWidth: getDemandPercentage(weapon.demand, weapon.category, weapon.price) > 0 ? '2px' : '0px'
               }"
             ></div>
           </div>
