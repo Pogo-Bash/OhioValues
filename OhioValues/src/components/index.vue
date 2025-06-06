@@ -254,27 +254,69 @@ const parseDemand = (demand) => {
   return isNaN(num) ? 0 : num;
 };
 
+// Replace the getDemandPercentage function with this improved version:
+
 const getDemandPercentage = (demand, category, price) => {
+  const demandNum = parseDemand(demand);
+  
+  // Option 1: Pure demand-based bars (most intuitive)
+  // Simply convert demand rating to percentage
+  const purePercentage = (demandNum / 10) * 100;
+  return Math.min(Math.max(purePercentage, demandNum > 0 ? 5 : 0), 100);
+};
+
+// Alternative Option 2: Weighted system that considers both demand and rarity
+const getDemandPercentageWeighted = (demand, category, price) => {
+  const demandNum = parseDemand(demand);
+  
+  // Define rarity multipliers for different categories
+  const rarityMultipliers = {
+    'Invisible': 1.3,
+    'Obsidian': 1.25,
+    'Void': 1.2,
+    'Cyberpunk': 1.15,
+    'Solid Gold': 1.1,
+    'Frozen Diamond': 1.05,
+    'Tactical': 1.0,
+    'Amethyst': 1.0,
+    'Dark Matter': 0.9,
+    'Anti Matter': 0.9,
+    'Crimson Blood': 0.85,
+    'Easter Egg': 0.8
+  };
+  
+  const multiplier = rarityMultipliers[category] || 1.0;
+  const adjustedDemand = demandNum * multiplier;
+  
+  // Convert to percentage (max possible is 10 * 1.3 = 13)
+  const percentage = (adjustedDemand / 13) * 100;
+  
+  return Math.min(Math.max(percentage, adjustedDemand > 0 ? 5 : 0), 100);
+};
+
+// Alternative Option 3: Value-based system (price × demand)
+const getDemandPercentageValueBased = (demand, category, price) => {
   const demandNum = parseDemand(demand);
   const priceValue = parsePrice(price);
   
-  // Calculate value × demand for this weapon
-  const currentScore = priceValue * demandNum;
+  // Calculate value score
+  const valueScore = priceValue * demandNum;
   
-  // Find the maximum score across all weapons
-  const maxScore = Math.max(...weapons.value.map(weapon => {
+  // Find max value score for normalization
+  const allValueScores = weapons.value.map(weapon => {
     const weaponDemand = parseDemand(weapon.demand);
     const weaponPrice = parsePrice(weapon.price);
     return weaponPrice * weaponDemand;
-  }));
+  });
   
-  // Calculate percentage relative to the max score
-  const percentage = maxScore > 0 ? (currentScore / maxScore) * 100 : 0;
+  const maxValueScore = Math.max(...allValueScores);
   
-  // Ensure minimum visibility for non-zero scores and cap at 100%
-  return Math.min(Math.max(percentage, currentScore > 0 ? 2 : 0), 100);
+  // Calculate percentage
+  const percentage = maxValueScore > 0 ? (valueScore / maxValueScore) * 100 : 0;
+  
+  return Math.min(Math.max(percentage, valueScore > 0 ? 2 : 0), 100);
 };
-
+  
 const getRarityColor = (category) => {
   const colors = {
     'Invisible': 'bg-purple-900 text-purple-200',
