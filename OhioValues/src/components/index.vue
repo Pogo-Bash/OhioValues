@@ -5,7 +5,7 @@ const isMenuOpen = ref(false);
 const showDisclaimer = ref(true);
 const dontShowAgain = ref(false);
 const isDeveloperMode = ref(false); 
-const showAddForm = ref(false); // This was missing!
+const showAddForm = ref(false);
 
 const newWeapon = ref({
   category: '',
@@ -21,7 +21,6 @@ const selectedCategory = ref('');
 const selectedAvailability = ref('');
 const sortBy = ref('price-desc');
 
-// Your weapons data array stays the same...
 const defaultWeapons = [
   // === UNOBTAINABLE SKINS (HIGHEST TIER) ===
   
@@ -312,3 +311,234 @@ onMounted(() => {
   }
 });
 </script>
+
+<template>
+  <!-- Disclaimer Modal -->
+  <div v-if="showDisclaimer" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div class="bg-gray-900 border border-purple-600 rounded-xl p-8 max-w-md mx-4 shadow-2xl">
+      <div class="flex justify-between items-start mb-4">
+        <h3 class="text-xl font-bold text-purple-300">⚠️ Disclaimer</h3>
+        <button @click="closeDisclaimer" class="text-purple-400 hover:text-white text-2xl">&times;</button>
+      </div>
+      <p class="text-purple-200 mb-6">
+        These weapon skin values are determined by me personally and may not be 100% accurate. 
+        Please use them as a general reference only and don't judge trades solely based on these values.
+      </p>
+      <div class="flex items-center justify-between">
+        <label class="flex items-center text-purple-300">
+          <input v-model="dontShowAgain" type="checkbox" class="mr-2 accent-purple-600">
+          Don't show again
+        </label>
+        <button @click="closeDisclaimer" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded transition">
+          Got it!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 w-full backdrop-blur-md bg-black/50 border-b border-purple-800 shadow-lg flex justify-between items-center px-6 py-4 z-40">
+    <a class="text-2xl font-bold text-purple-300">Stack's Ohio Values</a>
+    <!-- Desktop Menu -->
+    <div class="hidden lg:flex space-x-6">
+      <a href="#" class="text-purple-300 hover:text-white transition">Home</a>
+      <a href="#" class="text-purple-300 hover:text-white transition">About</a>
+    </div>
+    <!-- Mobile Hamburger Icon -->
+    <button @click="isMenuOpen = !isMenuOpen" class="lg:hidden text-white hover:text-purple-400 transition">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-8 h-8">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+      </svg>
+    </button>
+    <!-- Mobile Dropdown Menu -->
+    <div v-if="isMenuOpen" class="absolute top-16 right-6 bg-black/50 backdrop-blur-lg border border-purple-700 shadow-xl rounded-xl p-4 space-y-3 w-48 lg:hidden">
+      <a href="#" class="block px-4 py-2 text-purple-300 hover:bg-purple-700 hover:text-white rounded transition">Home</a>
+      <a href="#" class="block px-4 py-2 text-purple-300 hover:bg-purple-700 hover:text-white rounded transition">Values</a>
+      <a href="#" class="block px-4 py-2 text-purple-300 hover:bg-purple-700 hover:text-white rounded transition">Forum</a>
+      <a href="#" class="block px-4 py-2 text-purple-300 hover:bg-purple-700 hover:text-white rounded transition">About</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="pt-20 min-h-screen bg-gradient-to-b from-gray-900 via-purple-900/20 to-black">
+    <div class="container mx-auto px-6 py-8">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-purple-300 mb-4">🔫 Weapon Skin Values</h1>
+        <p class="text-purple-200">Browse and search through all weapon skin values</p>
+      </div>
+
+      <!-- Controls -->
+      <div class="mb-8 flex flex-col lg:flex-row gap-4 bg-gray-900/50 p-6 rounded-xl border border-purple-800">
+        <!-- Search -->
+        <div class="flex-1">
+          <input 
+            v-model="searchQuery" 
+            type="text" 
+            placeholder="Search for weapon or skin..." 
+            class="w-full px-4 py-3 bg-gray-800 border border-purple-600 rounded-lg text-white placeholder-purple-400 focus:border-purple-400 focus:outline-none"
+          >
+        </div>
+        
+        <!-- Filters -->
+        <div class="flex flex-col sm:flex-row gap-4">
+          <select v-model="selectedCategory" class="px-4 py-3 bg-gray-800 border border-purple-600 rounded-lg text-white focus:border-purple-400 focus:outline-none">
+            <option value="">All Categories</option>
+            <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+          </select>
+          
+          <select v-model="selectedAvailability" class="px-4 py-3 bg-gray-800 border border-purple-600 rounded-lg text-white focus:border-purple-400 focus:outline-none">
+            <option value="">All Availability</option>
+            <option value="Obtainable">Obtainable</option>
+            <option value="Unobtainable">Unobtainable</option>
+            <option value="Limited Time">Limited Time</option>
+          </select>
+          
+          <select v-model="sortBy" class="px-4 py-3 bg-gray-800 border border-purple-600 rounded-lg text-white focus:border-purple-400 focus:outline-none">
+            <option value="price-desc">Price (High to Low)</option>
+            <option value="price-asc">Price (Low to High)</option>
+            <option value="demand-desc">Demand (High to Low)</option>
+            <option value="demand-asc">Demand (Low to High)</option>
+            <option value="name">Name (A-Z)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Developer Controls (only show if dev mode enabled) -->
+      <div v-if="isDeveloperMode" class="mb-6">
+        <div class="bg-red-900/20 border border-red-600 rounded-lg p-4 mb-4">
+          <h3 class="text-red-400 font-bold mb-2">🔧 Developer Mode Active</h3>
+          <p class="text-red-300 text-sm">You can add and delete weapons. Set isDeveloperMode to false for production.</p>
+        </div>
+        
+        <div class="flex justify-end">
+          <button @click="showAddForm = !showAddForm" class="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg transition font-semibold">
+            {{ showAddForm ? 'Cancel' : '+ Add New Weapon' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Add New Weapon Form -->
+      <div v-if="showAddForm" class="mb-8 bg-gray-900/70 p-6 rounded-xl border border-purple-700">
+        <h3 class="text-xl font-bold text-purple-300 mb-4">Add New Weapon Skin</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <input v-model="newWeapon.category" placeholder="Category" class="px-4 py-2 bg-gray-800 border border-purple-600 rounded text-white placeholder-purple-400">
+          <input v-model="newWeapon.weapon" placeholder="Weapon Name" class="px-4 py-2 bg-gray-800 border border-purple-600 rounded text-white placeholder-purple-400">
+          <input v-model="newWeapon.price" placeholder="Price (e.g., 1.5m)" class="px-4 py-2 bg-gray-800 border border-purple-600 rounded text-white placeholder-purple-400">
+          <input v-model="newWeapon.demand" placeholder="Demand (e.g., 8/10)" class="px-4 py-2 bg-gray-800 border border-purple-600 rounded text-white placeholder-purple-400">
+          <select v-model="newWeapon.availability" class="px-4 py-2 bg-gray-800 border border-purple-600 rounded text-white">
+            <option value="">Select Availability</option>
+            <option value="Obtainable">Obtainable</option>
+            <option value="Unobtainable">Unobtainable</option>
+            <option value="Limited Time">Limited Time</option>
+          </select>
+          <button @click="addWeapon" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded transition font-semibold">
+            Add Weapon
+          </button>
+        </div>
+      </div>
+
+      <!-- Results Count -->
+      <div class="mb-4 text-purple-300">
+        Showing {{ filteredWeapons.length }} of {{ weapons.length }} weapons
+      </div>
+
+      <!-- Weapons Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div 
+          v-for="weapon in filteredWeapons" 
+          :key="weapon.id" 
+          class="bg-gray-900/70 border border-purple-700 rounded-xl p-6 hover:border-purple-500 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/20"
+        >
+          <!-- Rarity Badge -->
+          <div class="flex justify-between items-start mb-4">
+            <span 
+              class="px-3 py-1 rounded-full text-xs font-semibold"
+              :class="getRarityColor(weapon.category)"
+            >
+              {{ weapon.category }}
+            </span>
+            <span 
+              class="px-2 py-1 rounded text-xs"
+              :class="getAvailabilityColor(weapon.availability)"
+            >
+              {{ weapon.availability }}
+            </span>
+          </div>
+
+          <!-- Weapon Info -->
+          <div class="mb-4">
+            <h3 class="text-xl font-bold text-white mb-2">{{ weapon.weapon }}</h3>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold text-green-400">💵 {{ weapon.price }}</span>
+              <div class="flex items-center">
+                <span class="text-purple-300 mr-2">Demand:</span>
+                <div class="flex items-center">
+                  <span class="text-yellow-400 mr-1">⭐</span>
+                  <span class="font-semibold text-white">{{ weapon.demand }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Demand Bar -->
+          <div class="w-full bg-gray-700 rounded-full h-3 mb-3 overflow-hidden">
+            <div 
+              class="h-full rounded-full transition-all duration-500 ease-out"
+              :class="getDemandBarColor(weapon.category, weapon.demand)"
+              :style="{ 
+                width: getDemandPercentage(weapon.demand, weapon.category, weapon.price) + '%',
+                minWidth: getDemandPercentage(weapon.demand, weapon.category, weapon.price) > 0 ? '2px' : '0px'
+              }"
+            ></div>
+          </div>
+
+          <!-- Delete Button (only show in developer mode) -->
+          <button 
+            v-if="isDeveloperMode"
+            @click="deleteWeapon(weapon.id)" 
+            class="w-full mt-2 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white px-3 py-2 rounded transition text-sm"
+          >
+            🗑️ Delete
+          </button>
+        </div>
+      </div>
+
+      <div v-if="filteredWeapons.length === 0" class="text-center py-12">
+        <div class="text-6xl mb-4">😔</div>
+        <h3 class="text-2xl font-bold text-purple-300 mb-2">No weapons found</h3>
+        <p class="text-purple-400">Try adjusting your search or filters</p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+:deep(body) {
+  background-color: #0d021a;
+  color: white;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a2e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6b46c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #7c3aed;
+}
+</style>
