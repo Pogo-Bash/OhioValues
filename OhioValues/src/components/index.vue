@@ -190,7 +190,7 @@ const filteredWeapons = computed(() => {
 });
 
 const closeDisclaimer = () => {
-  showDisclaimer.value = false;z`
+  showDisclaimer.value = false;
   if (dontShowAgain.value) {
     localStorage.setItem('ohioValuesDisclaimerDismissed', 'true');
   }
@@ -281,6 +281,7 @@ const getDemandPercentageWeighted = (demand, category, price) => {
   return Math.min(Math.max(percentage, adjustedDemand > 0 ? 5 : 0), 100);
 };
 
+// Alternative Option 3: Value-based system (price × demand)
 const getDemandPercentageValueBased = (demand, category, price) => {
   const demandNum = parseDemand(demand);
   const priceValue = parsePrice(price);
