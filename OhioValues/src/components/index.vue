@@ -263,30 +263,32 @@ const getRarityColor = (category) => {
   return colors[category] || 'bg-gray-600 text-gray-200';
 };
 
-const getDemandBarColor = (category, demand) => {
-  const demandNum = parseDemand(demand);
+
+const getDemandBarColor = (category, demand, price) => {
+  // Use the same calculation as getDemandPercentage to determine color
+  const percentage = getDemandPercentage(demand, category, price);
   
-  // Ultra-rare categories get special colors
+  // Ultra-rare categories get special colors regardless of percentage
   const ultraRareCategories = ['Invisible', 'Obsidian', 'Void', 'Cyberpunk'];
   const highTierCategories = ['Solid Gold', 'Frozen Diamond', 'Tactical', 'Amethyst'];
   
   if (ultraRareCategories.includes(category)) {
-    if (demandNum >= 8) return 'bg-gradient-to-r from-purple-400 via-pink-400 to-red-400'; // Legendary
-    if (demandNum >= 6) return 'bg-gradient-to-r from-purple-500 to-pink-500'; // Epic
+    if (percentage >= 75) return 'bg-gradient-to-r from-purple-400 via-pink-400 to-red-400'; // Legendary
+    if (percentage >= 50) return 'bg-gradient-to-r from-purple-500 to-pink-500'; // Epic
     return 'bg-gradient-to-r from-purple-600 to-purple-400'; // Rare ultra
   }
   
   if (highTierCategories.includes(category)) {
-    if (demandNum >= 8) return 'bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400'; // High demand
-    if (demandNum >= 6) return 'bg-gradient-to-r from-blue-500 to-purple-500'; // Good demand
+    if (percentage >= 75) return 'bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400'; // High demand
+    if (percentage >= 50) return 'bg-gradient-to-r from-blue-500 to-purple-500'; // Good demand
     return 'bg-gradient-to-r from-blue-600 to-blue-400'; // Standard high tier
   }
   
-  // Standard/obtainable categories
-  if (demandNum >= 8) return 'bg-gradient-to-r from-yellow-400 to-green-400'; // High demand standard
-  if (demandNum >= 6) return 'bg-gradient-to-r from-yellow-500 to-green-500'; // Good demand
-  if (demandNum >= 4) return 'bg-gradient-to-r from-orange-500 to-yellow-500'; // Medium demand
-  return 'bg-gradient-to-r from-red-500 to-orange-500'; // Low demand
+  // Standard/obtainable categories - based on actual calculated percentage
+  if (percentage >= 75) return 'bg-gradient-to-r from-yellow-400 to-green-400'; // High percentage
+  if (percentage >= 50) return 'bg-gradient-to-r from-yellow-500 to-green-500'; // Good percentage
+  if (percentage >= 25) return 'bg-gradient-to-r from-orange-500 to-yellow-500'; // Medium percentage
+  return 'bg-gradient-to-r from-red-500 to-orange-500'; // Low percentage
 };
 
 const getAvailabilityColor = (availability) => {
@@ -482,16 +484,19 @@ onMounted(() => {
           </div>
 
           <!-- Demand Bar -->
-          <div class="w-full bg-gray-700 rounded-full h-3 mb-3 overflow-hidden">
-            <div 
-              class="h-full rounded-full transition-all duration-500 ease-out"
-              :class="getDemandBarColor(weapon.category, weapon.demand)"
-              :style="{ 
-                width: getDemandPercentage(weapon.demand, weapon.category, weapon.price) + '%',
-                minWidth: getDemandPercentage(weapon.demand, weapon.category, weapon.price) > 0 ? '2px' : '0px'
-              }"
-            ></div>
-          </div>
+         <!-- In your template, update the demand bar section to pass the price: -->
+
+<!-- Demand Bar -->
+<div class="w-full bg-gray-700 rounded-full h-3 mb-3 overflow-hidden">
+  <div 
+    class="h-full rounded-full transition-all duration-500 ease-out"
+    :class="getDemandBarColor(weapon.category, weapon.demand, weapon.price)"
+    :style="{ 
+      width: getDemandPercentage(weapon.demand, weapon.category, weapon.price) + '%',
+      minWidth: getDemandPercentage(weapon.demand, weapon.category, weapon.price) > 0 ? '2px' : '0px'
+    }"
+  ></div>
+</div>
 
           <!-- Delete Button (only show in developer mode) -->
           <button 
