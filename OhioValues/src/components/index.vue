@@ -1,16 +1,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 
-// Navigation
 const isMenuOpen = ref(false);
 
-// Disclaimer modal
 const showDisclaimer = ref(true);
 const dontShowAgain = ref(false);
 
-// Developer mode (set to false for production)
-const isDeveloperMode = ref(false); // Change to true for dev access
-const showAddForm = ref(false);
+const isDeveloperMode = ref(false); 
 const newWeapon = ref({
   category: '',
   weapon: '',
@@ -148,10 +144,8 @@ const defaultWeapons = [
   // 7. Example: { id: 79, category: 'New Category', weapon: 'New Weapon', price: '2.5m', demand: '9/10', availability: 'Unobtainable' }
 ];
 
-// Weapons data - loads from default weapons array
 const weapons = ref([...defaultWeapons]);
 
-// Computed properties
 const categories = computed(() => {
   return [...new Set(weapons.value.map(w => w.category))].sort();
 });
@@ -159,7 +153,6 @@ const categories = computed(() => {
 const filteredWeapons = computed(() => {
   let filtered = weapons.value;
   
-  // Search filter
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
     filtered = filtered.filter(w => 
@@ -168,17 +161,14 @@ const filteredWeapons = computed(() => {
     );
   }
   
-  // Category filter
   if (selectedCategory.value) {
     filtered = filtered.filter(w => w.category === selectedCategory.value);
   }
   
-  // Availability filter
   if (selectedAvailability.value) {
     filtered = filtered.filter(w => w.availability === selectedAvailability.value);
   }
   
-  // Sort
   filtered.sort((a, b) => {
     switch (sortBy.value) {
       case 'price-desc':
@@ -199,7 +189,6 @@ const filteredWeapons = computed(() => {
   return filtered;
 });
 
-// Methods
 const closeDisclaimer = () => {
   showDisclaimer.value = false;
   if (dontShowAgain.value) {
@@ -208,7 +197,7 @@ const closeDisclaimer = () => {
 };
 
 const addWeapon = () => {
-  if (!isDeveloperMode.value) return; // Prevent non-dev access
+  if (!isDeveloperMode.value) return; 
   
   if (newWeapon.value.category && newWeapon.value.weapon && newWeapon.value.price && 
       newWeapon.value.demand && newWeapon.value.availability) {
@@ -218,7 +207,6 @@ const addWeapon = () => {
     };
     weapons.value.push(weapon);
     
-    // Reset form
     newWeapon.value = {
       category: '',
       weapon: '',
@@ -228,13 +216,12 @@ const addWeapon = () => {
     };
     showAddForm.value = false;
     
-    // Save to localStorage (for dev testing)
     localStorage.setItem('ohioValuesWeapons', JSON.stringify(weapons.value));
   }
 };
 
 const deleteWeapon = (id) => {
-  if (!isDeveloperMode.value) return; // Prevent non-dev access
+  if (!isDeveloperMode.value) return; 
   weapons.value = weapons.value.filter(w => w.id !== id);
   localStorage.setItem('ohioValuesWeapons', JSON.stringify(weapons.value));
 };
@@ -248,28 +235,23 @@ const parsePrice = (price) => {
 };
 
 const parseDemand = (demand) => {
-  // Handle special cases like "+10/10" and extract the numeric value
   const cleanDemand = demand.replace(/[^0-9.]/g, '');
   const num = parseFloat(cleanDemand);
   return isNaN(num) ? 0 : num;
 };
 
-// Replace the getDemandPercentage function with this improved version:
 
 const getDemandPercentage = (demand, category, price) => {
   const demandNum = parseDemand(demand);
   
-  // Option 1: Pure demand-based bars (most intuitive)
-  // Simply convert demand rating to percentage
+
   const purePercentage = (demandNum / 10) * 100;
   return Math.min(Math.max(purePercentage, demandNum > 0 ? 5 : 0), 100);
 };
 
-// Alternative Option 2: Weighted system that considers both demand and rarity
 const getDemandPercentageWeighted = (demand, category, price) => {
   const demandNum = parseDemand(demand);
   
-  // Define rarity multipliers for different categories
   const rarityMultipliers = {
     'Invisible': 1.3,
     'Obsidian': 1.25,
@@ -414,12 +396,10 @@ onMounted(() => {
 
   <!-- Navigation -->
   <nav class="fixed top-0 left-0 w-full backdrop-blur-md bg-black/50 border-b border-purple-800 shadow-lg flex justify-between items-center px-6 py-4 z-40">
-    <a class="text-2xl font-bold text-purple-300">Ohio Values</a>
+    <a class="text-2xl font-bold text-purple-300">Stack's Ohio Values</a>
     <!-- Desktop Menu -->
     <div class="hidden lg:flex space-x-6">
       <a href="#" class="text-purple-300 hover:text-white transition">Home</a>
-      <a href="#" class="text-purple-300 hover:text-white transition">Values</a>
-      <a href="#" class="text-purple-300 hover:text-white transition">Forum</a>
       <a href="#" class="text-purple-300 hover:text-white transition">About</a>
     </div>
     <!-- Mobile Hamburger Icon -->
@@ -582,7 +562,6 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- No Results -->
       <div v-if="filteredWeapons.length === 0" class="text-center py-12">
         <div class="text-6xl mb-4">😔</div>
         <h3 class="text-2xl font-bold text-purple-300 mb-2">No weapons found</h3>
@@ -593,7 +572,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* Apply a translucent dark theme globally */
 :deep(body) {
   background-color: #0d021a;
   color: white;
