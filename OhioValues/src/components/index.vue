@@ -190,7 +190,7 @@ const filteredWeapons = computed(() => {
 });
 
 const closeDisclaimer = () => {
-  showDisclaimer.value = false;
+  showDisclaimer.value = false;z`
   if (dontShowAgain.value) {
     localStorage.setItem('ohioValuesDisclaimerDismissed', 'true');
   }
@@ -243,10 +243,15 @@ const parseDemand = (demand) => {
 
 const getDemandPercentage = (demand, category, price) => {
   const demandNum = parseDemand(demand);
+  const priceValue = parsePrice(price);
   
-
-  const purePercentage = (demandNum / 10) * 100;
-  return Math.min(Math.max(purePercentage, demandNum > 0 ? 5 : 0), 100);
+  const demandComponent = (demandNum / 10) * 100;
+  
+  const valueComponent = (priceValue / 20000000) * 100;
+  
+  const averagePercentage = (demandComponent + valueComponent) / 2;
+  
+  return Math.min(Math.max(averagePercentage, 0), 100);
 };
 
 const getDemandPercentageWeighted = (demand, category, price) => {
@@ -276,7 +281,6 @@ const getDemandPercentageWeighted = (demand, category, price) => {
   return Math.min(Math.max(percentage, adjustedDemand > 0 ? 5 : 0), 100);
 };
 
-// Alternative Option 3: Value-based system (price × demand)
 const getDemandPercentageValueBased = (demand, category, price) => {
   const demandNum = parseDemand(demand);
   const priceValue = parsePrice(price);
@@ -422,7 +426,7 @@ onMounted(() => {
     <div class="container mx-auto px-6 py-8">
       <!-- Header -->
       <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-purple-300 mb-4">Roblox Ohio Skin Values</h1>
+        <h1 class="text-4xl font-bold text-purple-300 mb-4">🔫 Weapon Skin Values</h1>
         <p class="text-purple-200">Browse and search through all weapon skin values</p>
       </div>
 
