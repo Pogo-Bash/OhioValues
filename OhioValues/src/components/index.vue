@@ -1,11 +1,4 @@
-const getAvailabilityColor = (availability) => {
-  const colors = {
-    'Obtainable': 'bg-green-700 text-green-200',
-    'Unobtainable': 'bg-red-700 text-red-200',
-    'Limited Time': 'bg-yellow-700 text-yellow-200'
-  };
-  return colors[availability] || 'bg-gray-600 text-gray-200';
-};<script setup>
+<script setup>
 import { ref, computed, onMounted } from 'vue';
 
 // Navigation
@@ -371,6 +364,15 @@ const getDemandBarColor = (category, demand) => {
   if (demandNum >= 6) return 'bg-gradient-to-r from-yellow-500 to-green-500'; // Good demand
   if (demandNum >= 4) return 'bg-gradient-to-r from-orange-500 to-yellow-500'; // Medium demand
   return 'bg-gradient-to-r from-red-500 to-orange-500'; // Low demand
+};
+
+const getAvailabilityColor = (availability) => {
+  const colors = {
+    'Obtainable': 'bg-green-700 text-green-200',
+    'Unobtainable': 'bg-red-700 text-red-200',
+    'Limited Time': 'bg-yellow-700 text-yellow-200'
+  };
+  return colors[availability] || 'bg-gray-600 text-gray-200';
 };
 
 // Load data from localStorage on mount
