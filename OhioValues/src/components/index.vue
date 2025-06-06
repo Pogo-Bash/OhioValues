@@ -179,8 +179,7 @@ const filteredWeapons = computed(() => {
 const closeDisclaimer = () => {
   showDisclaimer.value = false;
   if (dontShowAgain.value) {
-    // Using in-memory storage instead of localStorage for Claude.ai compatibility
-    sessionStorage.setItem('ohioValuesDisclaimerDismissed', 'true');
+    localStorage.setItem('ohioValuesDisclaimerDismissed', 'true');
   }
 };
 
@@ -203,12 +202,15 @@ const addWeapon = () => {
       availability: ''
     };
     showAddForm.value = false;
+    
+    localStorage.setItem('ohioValuesWeapons', JSON.stringify(weapons.value));
   }
 };
 
 const deleteWeapon = (id) => {
   if (!isDeveloperMode.value) return; 
   weapons.value = weapons.value.filter(w => w.id !== id);
+  localStorage.setItem('ohioValuesWeapons', JSON.stringify(weapons.value));
 };
 
 const parsePrice = (price) => {
@@ -220,6 +222,15 @@ const parsePrice = (price) => {
 };
 
 const parseDemand = (demand) => {
+  // Handle X/10 format properly
+  if (demand.includes('/')) {
+    const parts = demand.split('/');
+    const numerator = parseFloat(parts[0]);
+    const denominator = parseFloat(parts[1]);
+    return (numerator / denominator) * 10; // Convert to out of 10 scale
+  }
+  
+  // Handle decimal format like 8.5
   const cleanDemand = demand.replace(/[^0-9.]/g, '');
   const num = parseFloat(cleanDemand);
   return isNaN(num) ? 0 : num;
@@ -261,7 +272,6 @@ const getRarityColor = (category) => {
   return colors[category] || 'bg-gray-600 text-gray-200';
 };
 
-// FIXED DEMAND BAR COLOR - NOW TAKES 3 PARAMETERS AND USES YOUR FORMULA
 const getDemandBarColor = (category, demand, price) => {
   // Use the same calculation as getDemandPercentage to determine color
   const percentage = getDemandPercentage(demand, category, price);
@@ -298,11 +308,16 @@ const getAvailabilityColor = (availability) => {
   return colors[availability] || 'bg-gray-600 text-gray-200';
 };
 
-// Load data from sessionStorage on mount
+// Load data from localStorage on mount
 onMounted(() => {
-  const dismissed = sessionStorage.getItem('ohioValuesDisclaimerDismissed');
+  const dismissed = localStorage.getItem('ohioValuesDisclaimerDismissed');
   if (dismissed === 'true') {
     showDisclaimer.value = false;
+  }
+  
+  const savedWeapons = localStorage.getItem('ohioValuesWeapons');
+  if (savedWeapons) {
+    weapons.value = JSON.parse(savedWeapons);
   }
 });
 </script>
@@ -476,7 +491,7 @@ onMounted(() => {
             </div>
           </div>
 
-          <!-- Demand Bar - FIXED: Now passes price parameter -->
+          <!-- Demand Bar -->
           <div class="w-full bg-gray-700 rounded-full h-3 mb-3 overflow-hidden">
             <div 
               class="h-full rounded-full transition-all duration-500 ease-out"
