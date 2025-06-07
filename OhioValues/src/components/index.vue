@@ -347,11 +347,12 @@ onMounted(() => {
   </div>
 
   <!-- Navigation -->
-  <nav class="fixed top-0 left-0 w-full backdrop-blur-md bg-black/50 border-b border-purple-800 shadow-lg flex justify-between items-center px-6 py-4 z-40">
-    <a class="text-2xl font-bold text-purple-300">Stack's Ohio Values</a>
+ <nav class="fixed top-0 left-0 w-full backdrop-blur-md bg-black/50 border-b border-purple-800 shadow-lg flex justify-between items-center px-6 py-4 z-40">
+    <a class="text-2xl font-bold text-purple-300 cursor-pointer">Stack's Ohio Values</a>
     <!-- Desktop Menu -->
     <div class="hidden lg:flex space-x-6">
-      <a href="#" class="text-purple-300 hover:text-white transition">Home</a>
+      <a href="#" class="text-white font-semibold">Home</a>
+      <button @click="emit('switch-to-calculator')" class="text-purple-300 hover:text-white transition">Calculator</button>
       <a href="#" class="text-purple-300 hover:text-white transition">About</a>
     </div>
     <!-- Mobile Hamburger Icon -->
@@ -362,9 +363,8 @@ onMounted(() => {
     </button>
     <!-- Mobile Dropdown Menu -->
     <div v-if="isMenuOpen" class="absolute top-16 right-6 bg-black/50 backdrop-blur-lg border border-purple-700 shadow-xl rounded-xl p-4 space-y-3 w-48 lg:hidden">
-      <a href="#" class="block px-4 py-2 text-purple-300 hover:bg-purple-700 hover:text-white rounded transition">Home</a>
-      <a href="#" class="block px-4 py-2 text-purple-300 hover:bg-purple-700 hover:text-white rounded transition">Values</a>
-      <a href="#" class="block px-4 py-2 text-purple-300 hover:bg-purple-700 hover:text-white rounded transition">Forum</a>
+      <a href="#" class="block px-4 py-2 text-white bg-purple-700 rounded">Home</a>
+      <button @click="emit('switch-to-calculator'); isMenuOpen = false" class="block w-full text-left px-4 py-2 text-purple-300 hover:bg-purple-700 hover:text-white rounded transition">Calculator</button>
       <a href="#" class="block px-4 py-2 text-purple-300 hover:bg-purple-700 hover:text-white rounded transition">About</a>
     </div>
   </nav>
