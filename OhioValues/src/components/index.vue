@@ -1,6 +1,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 
+// Add props to receive navigation function
+const props = defineProps({
+  showCalculator: Function
+});
+
 const isMenuOpen = ref(false);
 const showDisclaimer = ref(true);
 const dontShowAgain = ref(false);
@@ -347,12 +352,12 @@ onMounted(() => {
   </div>
 
   <!-- Navigation -->
- <nav class="fixed top-0 left-0 w-full backdrop-blur-md bg-black/50 border-b border-purple-800 shadow-lg flex justify-between items-center px-6 py-4 z-40">
+  <nav class="fixed top-0 left-0 w-full backdrop-blur-md bg-black/50 border-b border-purple-800 shadow-lg flex justify-between items-center px-6 py-4 z-40">
     <a class="text-2xl font-bold text-purple-300 cursor-pointer">Stack's Ohio Values</a>
     <!-- Desktop Menu -->
     <div class="hidden lg:flex space-x-6">
       <a href="#" class="text-white font-semibold">Home</a>
-      <button @click="emit('switch-to-calculator')" class="text-purple-300 hover:text-white transition">Calculator</button>
+      <button @click="props.showCalculator" class="text-purple-300 hover:text-white transition">Calculator</button>
       <a href="#" class="text-purple-300 hover:text-white transition">About</a>
     </div>
     <!-- Mobile Hamburger Icon -->
@@ -364,7 +369,7 @@ onMounted(() => {
     <!-- Mobile Dropdown Menu -->
     <div v-if="isMenuOpen" class="absolute top-16 right-6 bg-black/50 backdrop-blur-lg border border-purple-700 shadow-xl rounded-xl p-4 space-y-3 w-48 lg:hidden">
       <a href="#" class="block px-4 py-2 text-white bg-purple-700 rounded">Home</a>
-      <button @click="emit('switch-to-calculator'); isMenuOpen = false" class="block w-full text-left px-4 py-2 text-purple-300 hover:bg-purple-700 hover:text-white rounded transition">Calculator</button>
+      <button @click="props.showCalculator(); isMenuOpen = false" class="block w-full text-left px-4 py-2 text-purple-300 hover:bg-purple-700 hover:text-white rounded transition">Calculator</button>
       <a href="#" class="block px-4 py-2 text-purple-300 hover:bg-purple-700 hover:text-white rounded transition">About</a>
     </div>
   </nav>
@@ -375,7 +380,15 @@ onMounted(() => {
       <!-- Header -->
       <div class="text-center mb-8">
         <h1 class="text-4xl font-bold text-purple-300 mb-4">🔫 Weapon Skin Values</h1>
-        <p class="text-purple-200">Browse and search through all weapon skin values</p>
+        <p class="text-purple-200 mb-6">Browse and search through all weapon skin values</p>
+        
+        <!-- Quick navigation to calculator -->
+        <button @click="props.showCalculator" 
+                class="inline-flex items-center bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
+          <span class="mr-2">⚖️</span>
+          Trade Calculator
+          <span class="ml-2">→</span>
+        </button>
       </div>
 
       <!-- Controls -->
