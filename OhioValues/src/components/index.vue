@@ -291,7 +291,7 @@ const defaultWeapons = [
   { id: 213, category: 'Void Mystic', weapon: 'M249 SAW', price: '155k', demand: '5/10', availability: 'Unobtainable' },
   
   // Pirate skins
-  { id: 214, category: 'Pirate', weapon: 'Scar L', price: '400-450k', demand: '9/10', availability: 'Unobtainable' },
+  { id: 214, category: 'Pirate', weapon: 'Scar L', price: '450k', demand: '9/10', availability: 'Unobtainable' },
   { id: 215, category: 'Pirate', weapon: 'Sawn Off', price: '200k', demand: '5/10', availability: 'Unobtainable' },
   { id: 216, category: 'Pirate', weapon: 'RPK', price: '180k', demand: '2/10', availability: 'Unobtainable' },
   { id: 217, category: 'Pirate', weapon: 'Double Barrel', price: '175k', demand: '2/10', availability: 'Unobtainable' },
