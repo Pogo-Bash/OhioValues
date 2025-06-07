@@ -379,8 +379,8 @@ onMounted(() => {
     <div class="container mx-auto px-6 py-8">
       <!-- Header -->
       <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-purple-300 mb-4">🔫 Weapon Skin Values</h1>
-        <p class="text-purple-200 mb-6">Browse and search through all weapon skin values</p>
+        <h1 class="text-4xl font-bold text-purple-300 mb-4"> Roblox Ohio Skin Values </h1>
+        <p class="text-purple-200 mb-6">Browse and search through all ohio weapon skin values</p>
         
         <!-- Quick navigation to calculator -->
         <button @click="props.showCalculator" 
