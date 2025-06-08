@@ -731,8 +731,9 @@ onMounted(() => {
         <button @click="closeDisclaimer" class="text-purple-400 hover:text-white text-2xl">&times;</button>
       </div>
       <p class="text-purple-200 mb-6">
-        These weapon skin values are determined by me personally and may not be 100% accurate. 
+        These weapon skin values are determined by the Ohio Values Discord and may not be 100% accurate. 
         Please use them as a general reference only and don't judge trades solely based on these values.
+        These will soon change to custom values made by me and my experts
       </p>
       <div class="flex items-center justify-between">
         <label class="flex items-center text-purple-300">
