@@ -528,7 +528,9 @@ const defaultWeapons = [
   { id: 398, category: 'Easter Egg', weapon: 'Glock 18', price: '25k', demand: '1/10', availability: 'Limited Time' },
   { id: 399, category: 'Easter Egg', weapon: 'Python', price: '20k', demand: '1/10', availability: 'Limited Time' },
   { id: 400, category: 'Easter Egg', weapon: 'M1911', price: '20k', demand: '1/10', availability: 'Limited Time' },
-  { id: 401, category: 'Easter Egg', weapon: 'USP 45', price: '20k', demand: '1/10', availability: 'Limited Time' }
+  { id: 401, category: 'Easter Egg', weapon: 'USP 45', price: '20k', demand: '1/10', availability: 'Limited Time' },
+    { id: 402, category: 'Wife', weapon: 'Beats Stack', price: 'Priceless', demand: '10/10', availability: 'Stack Exclusive' }
+
 ];
 
 const weapons = ref([...defaultWeapons]);
